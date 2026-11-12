@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Static checks; they do NOT replace a browser/Tilda runtime test.
+// Static regression tests for the clinic's selection matrix (not a browser E2E test).
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -7,81 +7,104 @@ import { Script } from 'node:vm';
 
 const root = resolve(import.meta.dirname, '..');
 const html = readFileSync(resolve(root, 'tilda/comfortclinic_quiz_T123.html'), 'utf8');
-const data = JSON.parse(readFileSync(resolve(root, 'data/checkups.json'), 'utf8'));
+const programs = JSON.parse(readFileSync(resolve(root, 'data/checkups.json'), 'utf8'));
+const rules = JSON.parse(readFileSync(resolve(root, 'data/recommendation-rules.json'), 'utf8'));
 const errors = [];
-const check = (condition, message) => { if (!condition) errors.push(message); };
+const check = (ok, message) => { if (!ok) errors.push(message); };
 
-check(data.length === 16, 'Registry must contain 16 programs');
-check(new Set(data.map(x => x.id)).size === data.length, 'Record IDs must be unique');
-check(data.every(x => Number.isInteger(x.id) && x.id > 0), 'Every program needs a valid Tilda Record ID');
-check(data.every(x => [1,2,3,4].includes(x.tab)), 'Invalid Tilda tab index');
-check(data.every(x => ['any','female','male'].includes(x.gender)), 'Invalid gender');
-check(data.every(x => Number.isInteger(x.ageMin) && Number.isInteger(x.ageMax) && x.ageMin >= 0 && x.ageMax <= 100 && x.ageMin <= x.ageMax), 'Invalid age ranges');
-check(data.every(x => x.price > 0 && x.oldPrice >= x.price && x.saving === x.oldPrice - x.price), 'Price/saving arithmetic mismatch');
-check(data.every(x => x.title && Array.isArray(x.services) && x.services.length > 0), 'Missing titles or service summaries');
-check(data.every(x => (x.tab === 1 && x.gender === 'female') || (x.tab === 2 && x.gender === 'male') || x.tab === 3 || x.tab === 4), 'Sex/tab mismatch');
-const embeddedMatch = html.match(/const programs=(\[[\s\S]*?\]);\s*const q=/);
-check(!!embeddedMatch, 'Embedded programs array not found');
-if (embeddedMatch) {
-  try { assert.deepEqual(JSON.parse(embeddedMatch[1]), data); }
-  catch { errors.push('HTML embedded programs differ from data/checkups.json (run node scripts/build.mjs)'); }
+check(programs.length === 16, 'Expected 16 current catalog programs');
+check(new Set(programs.map(p => p.id)).size === programs.length, 'Duplicate Tilda Record IDs');
+check(programs.every(p => Number.isInteger(p.id) && p.id > 0), 'Invalid Record ID');
+check(programs.every(p => [1,2,3,4].includes(p.tab)), 'Invalid Tilda tab');
+check(programs.every(p => ['female','male','any'].includes(p.gender)), 'Invalid gender');
+check(programs.every(p => Number.isInteger(p.ageMin) && Number.isInteger(p.ageMax) && p.ageMin >= 0 && p.ageMin <= p.ageMax && p.ageMax <= 100), 'Invalid age bounds');
+check(programs.every(p => p.price > 0 && p.oldPrice >= p.price && p.saving === p.oldPrice - p.price), 'Invalid price/saving arithmetic');
+check(programs.every(p => p.title && Array.isArray(p.services) && p.services.length), 'Missing catalog information');
+check(Object.keys(rules.codes).length === 16, 'Expected 16 clinic code mappings');
+check(new Set(Object.values(rules.codes)).size === 16, 'Code mapping is not one-to-one');
+check(Object.values(rules.codes).every(id => programs.some(p => p.id === id)), 'Clinic code references nonexistent Tilda Record ID');
+
+const programMatch = html.match(/const programs=(\[[\s\S]*?\]);\s*const recommendationRules=/);
+const ruleMatch = html.match(/const recommendationRules=(\{[\s\S]*?\});\s*const q=/);
+check(!!programMatch, 'Embedded programs not found');
+check(!!ruleMatch, 'Embedded recommendationRules not found');
+if (programMatch) {
+  try { assert.deepEqual(JSON.parse(programMatch[1]), programs); }
+  catch { errors.push('Embedded programs differ from data/checkups.json; run npm run build'); }
 }
-const scriptMatch = html.match(/<script>([\s\S]*?)<\/script>/);
-check(!!scriptMatch, 'Inline script missing');
-if (scriptMatch) {
-  try { new Script(scriptMatch[1]); }
-  catch (e) { errors.push('Invalid JavaScript syntax: ' + e.message); }
+if (ruleMatch) {
+  try { assert.deepEqual(JSON.parse(ruleMatch[1]), {codes:rules.codes,branches:rules.branches}); }
+  catch { errors.push('Embedded rules differ from data/recommendation-rules.json; run npm run build'); }
 }
-check((html.match(/class="ccq-panel"/g) || []).length === 5, 'Expected five wizard panels');
-check(html.includes('id="ccq-browse"') && html.includes('Выбрать чекап самостоятельно'), 'Independent browse link missing');
-check(html.includes('href="#rec5299319803"'), 'Native Tilda tabs anchor missing');
-check(html.includes("if(exact.length)return {items:exact,fallback:false}"), 'Explicit fallback decision missing');
-check(html.includes("return {items:generalPrograms(),fallback:true}"), 'General fallback missing');
-check(html.includes("const hash='!/tab/5299319803-'"), 'Native tab hash integration missing');
-check(html.includes("book.href='#zapis'"), 'Tilda booking popup link missing');
-check(!/демо|согласовани|на согласовании/iu.test(html), 'Disallowed public copy remains in T123 HTML');
+const script = html.match(/<script>([\s\S]*?)<\/script>/);
+check(!!script, 'Inline JavaScript missing');
+if (script) {
+  try { new Script(script[1]); }
+  catch (error) { errors.push('Invalid inline JavaScript: ' + error.message); }
+}
+
+check((html.match(/class="ccq-panel"/g) || []).length === 4, 'Expected four screens: sex, age, topic, results');
+check(html.includes('function currentBranch()') && html.includes('recommendationRules.codes'), 'Clinic matrix selector missing');
+check(html.includes('return {items:recommendedForTopic(\'general\'),fallback:true}'), 'Fallback to general programs missing');
+check(html.includes('Собрать свой чекап'), 'Fourth card “Собрать свой” missing');
+check(html.includes('id="ccq-browse"') && html.includes('href="#rec5299319803"'), 'Direct browsing of native Tilda tabs missing');
+check(html.includes("const hash='!/tab/5299319803-'"), 'Native tab navigation missing');
+check(html.includes("book.href='#zapis'"), 'Booking popup link missing');
+check(!/демо|согласовани|на согласовании/iu.test(html), 'Disallowed end-user copy in HTML');
 check(!/<script[^>]+src=|<link[^>]+href=/i.test(html), 'Unexpected external dependency');
-check(!/(sk-[A-Za-z0-9_-]{20,}|Bearer\s+[A-Za-z0-9._-]{20,})/.test(html), 'Suspicious credential-like value');
+check(!/(sk-[A-Za-z0-9_-]{20,}|Bearer\s+[A-Za-z0-9._-]{20,})/.test(html), 'Possible secret in bundle');
 
-// Reproduce selection invariants for targeted regression scenarios;
-// this tests the intended registry rules, not browser events.
-const eligible = (age, sex) => data.filter(p => age >= p.ageMin && age <= p.ageMax && (p.gender === 'any' || p.gender === sex));
-function general(age, sex) {
-  const rows = eligible(age, sex).filter(p => p.topic === 'general');
-  const order = age < 18
-    ? age >= 13 ? [5336874303,5336874803,5336874503]
-      : age >= 6 ? [5336874503,5336874403,5336874303]
-        : [5336874503,5336874603,5336874703]
-    : [5336877903,5336872503,5336877703];
-  return rows.sort((a,b) => {
-    const i = order.indexOf(a.id), j = order.indexOf(b.id);
-    return (i < 0 ? 999 : i) - (j < 0 ? 999 : j);
-  }).slice(0,3);
+const eligible = (age,sex) => programs.filter(p =>
+  age >= p.ageMin && age <= p.ageMax && (p.gender === 'any' || p.gender === sex));
+function getResults(age,sex,topic) {
+  const band = age < 18 ? 'child' : age < 35 ? 'adult18_34' : 'adult35plus';
+  const branch = rules.branches[age < 18 ? 'child' : sex]?.[band] || {};
+  const byId = new Map(eligible(age,sex).map(p => [p.id,p]));
+  const select = key => (branch[key] || []).map(code => byId.get(rules.codes[code])).filter(Boolean).slice(0,3);
+  const direct = select(topic);
+  return direct.length ? {items:direct,fallback:false} : {items:select('general'),fallback:true};
 }
-function expectedCandidates(age, sex, topic) {
-  if (topic === 'general') return {items:general(age,sex),fallback:false};
-  const exact = topic === 'gut' ? [] : eligible(age,sex).filter(p => p.topic === topic).slice(0,3);
-  return exact.length ? {items:exact,fallback:false} : {items:general(age,sex),fallback:true};
-}
+const codes = list => list.map(code => rules.codes[code]);
 const scenarios = [
-  {age:28,sex:'female',topic:'gynecology',count:3,fallback:false},
-  {age:42,sex:'male',topic:'urology',count:2,fallback:false},
-  {age:35,sex:'female',topic:'gut',count:3,fallback:true},
-  {age:8,sex:'female',topic:'general',count:3,fallback:false},
-  {age:8,sex:'male',topic:'thyroid',count:3,fallback:true},
-  {age:2,sex:'male',topic:'weight',count:3,fallback:true},
-  {age:11,sex:'female',topic:'weight',count:1,fallback:false},
-  {age:18,sex:'female',topic:'general',count:3,fallback:false},
-  {age:70,sex:'male',topic:'gynecology',count:3,fallback:true},
-  {age:100,sex:'female',topic:'thyroid',count:1,fallback:false}
+  [28,'female','gynecology',['A','B','C'],false],
+  [28,'female','thyroid',['G','F','B'],false],
+  [28,'female','weight',['G','F'],false],
+  [28,'female','general',['G','F','B'],false],
+  [35,'female','gynecology',['A','B','C'],false],
+  [35,'female','thyroid',['G','F','B'],false],
+  [35,'female','weight',['F','I','H'],false],
+  [35,'female','general',['F','B','C'],false],
+  [28,'male','urology',['D','E'],false],
+  [28,'male','thyroid',['G','F','D'],false],
+  [28,'male','weight',['G','F'],false],
+  [28,'male','general',['F','D','E'],false],
+  [35,'male','urology',['D','E'],false],
+  [35,'male','thyroid',['G','F','D'],false],
+  [35,'male','weight',['F','I','H'],false],
+  [35,'male','general',['F','I','D'],false],
+  [15,'male','children',['K1','K4','K5'],false],
+  [15,'female','thyroid',['K6','K3','K7'],false],
+  [12,'female','weight',['K1','K3','K7'],false],
+  [12,'male','general',['K1','K3','K4'],false],
+  [35,'female','gut',['F','B','C'],true],
+  [35,'male','gut',['F','I','D'],true],
+  [5,'female','thyroid',['K1','K4'],true],
+  [8,'male','weight',['K1'],false],
+  [0,'male','general',['K1','K4'],false],
+  [18,'female','general',['G','F','B'],false],
+  [34,'male','general',['F','D','E'],false],
+  [100,'female','general',['F','B','C'],false]
 ];
-for (const s of scenarios) {
-  const r = expectedCandidates(s.age,s.sex,s.topic);
-  check(r.items.length === s.count && r.fallback === s.fallback, 'Scenario mismatch: '+JSON.stringify(s));
-  check(r.items.every(p=>p.ageMin <= s.age && s.age <= p.ageMax && (p.gender === 'any' || p.gender === s.sex)), 'Ineligible program in '+JSON.stringify(s));
+for (const [age,sex,topic,expected,fallback] of scenarios) {
+  const result = getResults(age,sex,topic);
+  check(JSON.stringify(result.items.map(p => p.id)) === JSON.stringify(codes(expected)),
+    'Wrong selection for ' + JSON.stringify({age,sex,topic,expected}));
+  check(result.fallback === fallback, 'Wrong fallback for '+JSON.stringify({age,sex,topic}));
+  check(result.items.every(p => p.ageMin <= age && p.ageMax >= age && (p.gender === 'any' || p.gender === sex)),
+    'Age or gender mismatch in '+JSON.stringify({age,sex,topic}));
 }
 if (errors.length) {
-  console.error(errors.map((e,i)=> (i+1)+'. '+e).join('\n'));
+  console.error(errors.map((e,i) => (i+1)+'. '+e).join('\n'));
   process.exit(1);
 }
-console.log('PASS: 16 records, embedded data, pricing, syntax, wizard, Tilda links, copy and '+scenarios.length+' catalog scenarios.');
+console.log('PASS: 16 programs, clinic matrix, four-screen quiz, JavaScript and '+scenarios.length+' selection cases.');
