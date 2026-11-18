@@ -9,6 +9,7 @@ const root = resolve(import.meta.dirname, '..');
 const html = readFileSync(resolve(root, 'tilda/comfortclinic_quiz_T123.html'), 'utf8');
 const programs = JSON.parse(readFileSync(resolve(root, 'data/checkups.json'), 'utf8'));
 const rules = JSON.parse(readFileSync(resolve(root, 'data/recommendation-rules.json'), 'utf8'));
+const sourceMap = JSON.parse(readFileSync(resolve(root, 'data/tilda-source-map.json'), 'utf8')).records;
 const errors = [];
 const check = (ok, message) => { if (!ok) errors.push(message); };
 
@@ -23,13 +24,17 @@ check(programs.every(p => p.title && Array.isArray(p.services) && p.services.len
 check(Object.keys(rules.codes).length === 16, 'Expected 16 clinic code mappings');
 check(new Set(Object.values(rules.codes)).size === 16, 'Code mapping is not one-to-one');
 check(Object.values(rules.codes).every(id => programs.some(p => p.id === id)), 'Clinic code references nonexistent Tilda Record ID');
+check(programs.every(p => sourceMap[String(p.id)]), 'Missing live source mapping for program');
+check(programs.every(p => ['title','price','oldPrice'].every(f => /^\d{8,19}$/.test(String(sourceMap[String(p.id)]?.[f])))), 'Invalid Zero Block selector ID');
+check(Object.values(sourceMap).every(m => Array.isArray(m.services) && m.services.every(s => /^\d{19}$/.test(String(s)))), 'Invalid service layer selector');
+
 
 const programMatch = html.match(/const programs=(\[[\s\S]*?\]);\s*const recommendationRules=/);
 const ruleMatch = html.match(/const recommendationRules=(\{[\s\S]*?\});\s*const q=/);
 check(!!programMatch, 'Embedded programs not found');
 check(!!ruleMatch, 'Embedded recommendationRules not found');
 if (programMatch) {
-  try { assert.deepEqual(JSON.parse(programMatch[1]), programs.map(({id,tab,topic,gender,ageMin,ageMax,title}) => ({id,tab,topic,gender,ageMin,ageMax,titleHint:title}))); }
+  try { assert.deepEqual(JSON.parse(programMatch[1]), programs.map(({id,tab,topic,gender,ageMin,ageMax,title}) => ({id,tab,topic,gender,ageMin,ageMax,titleHint:title,source:sourceMap[String(id)]}))); }
   catch { errors.push('Embedded programs differ from data/checkups.json; run npm run build'); }
 }
 if (ruleMatch) {
