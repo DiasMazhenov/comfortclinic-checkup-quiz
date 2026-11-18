@@ -23,7 +23,7 @@
 <script>
 (function(){'use strict';
 const root=document.getElementById('cc-quiz');if(!root||root.dataset.mounted==='1')return;root.dataset.mounted='1';
-const programs=[{"id":5301242603,"tab":1,"topic":"gynecology","gender":"female","ageMin":18,"ageMax":100,"titleHint":"Женский базовый"},{"id":5301345103,"tab":1,"topic":"gynecology","gender":"female","ageMin":18,"ageMax":100,"titleHint":"Женский средний"},{"id":5299416903,"tab":1,"topic":"gynecology","gender":"female","ageMin":18,"ageMax":100,"titleHint":"Женский расширенный"},{"id":5336877903,"tab":3,"topic":"general","gender":"any","ageMin":18,"ageMax":100,"titleHint":"Базовый метаболический"},{"id":5336877803,"tab":3,"topic":"thyroid","gender":"any","ageMin":18,"ageMax":100,"titleHint":"Щитовидная железа под контролем"},{"id":5336877703,"tab":3,"topic":"general","gender":"any","ageMin":18,"ageMax":100,"titleHint":"Диабет 2 типа: под наблюдением"},{"id":5336872503,"tab":3,"topic":"general","gender":"any","ageMin":18,"ageMax":100,"titleHint":"Профилактика диабета (при факторах риска)"},{"id":5336874503,"tab":4,"topic":"general","gender":"any","ageMin":0,"ageMax":17,"titleHint":"Здоровый ребёнок — базовый"},{"id":5336874403,"tab":4,"topic":"general","gender":"any","ageMin":6,"ageMax":12,"titleHint":"Подготовка к школе (6–12 лет)"},{"id":5336874303,"tab":4,"topic":"general","gender":"any","ageMin":11,"ageMax":18,"titleHint":"Здоровый подросток (11–18 лет)"},{"id":5336874603,"tab":4,"topic":"general","gender":"any","ageMin":0,"ageMax":17,"titleHint":"Сила иммунитета"},{"id":5336874703,"tab":4,"topic":"general","gender":"any","ageMin":0,"ageMax":17,"titleHint":"Стоп простуда"},{"id":5336874803,"tab":4,"topic":"general","gender":"any","ageMin":13,"ageMax":18,"titleHint":"Половое созревание под контролем (13–18 лет)"},{"id":5336874903,"tab":4,"topic":"weight","gender":"any","ageMin":10,"ageMax":100,"titleHint":"Контроль веса и метаболизма (10+ лет)"},{"id":5512831303,"tab":2,"topic":"urology","gender":"male","ageMin":18,"ageMax":100,"titleHint":"Мужской базовый"},{"id":5513194303,"tab":2,"topic":"urology","gender":"male","ageMin":18,"ageMax":100,"titleHint":"Мужской: инфекции под контролем"}];
+const programs=[{"id":5301242603,"tab":1,"topic":"gynecology","gender":"female","ageMin":18,"ageMax":100,"titleHint":"Женский базовый","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5301345103,"tab":1,"topic":"gynecology","gender":"female","ageMin":18,"ageMax":100,"titleHint":"Женский средний","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5299416903,"tab":1,"topic":"gynecology","gender":"female","ageMin":18,"ageMax":100,"titleHint":"Женский расширенный","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5336877903,"tab":3,"topic":"general","gender":"any","ageMin":18,"ageMax":100,"titleHint":"Базовый метаболический","source":{"title":"8102496566","category":"1793384830498000001","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5336877803,"tab":3,"topic":"thyroid","gender":"any","ageMin":18,"ageMax":100,"titleHint":"Щитовидная железа под контролем","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5336877703,"tab":3,"topic":"general","gender":"any","ageMin":18,"ageMax":100,"titleHint":"Диабет 2 типа: под наблюдением","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5336872503,"tab":3,"topic":"general","gender":"any","ageMin":18,"ageMax":100,"titleHint":"Профилактика диабета (при факторах риска)","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5336874503,"tab":4,"topic":"general","gender":"any","ageMin":0,"ageMax":17,"titleHint":"Здоровый ребёнок — базовый","source":{"title":"1793391282147000086","category":"1793391282147000087","price":"1793391282147000078","oldPrice":"1793391282147000080","services":[]}},{"id":5336874403,"tab":4,"topic":"general","gender":"any","ageMin":6,"ageMax":12,"titleHint":"Подготовка к школе (6–12 лет)","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5336874303,"tab":4,"topic":"general","gender":"any","ageMin":11,"ageMax":18,"titleHint":"Здоровый подросток (11–18 лет)","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5336874603,"tab":4,"topic":"general","gender":"any","ageMin":0,"ageMax":17,"titleHint":"Сила иммунитета","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5336874703,"tab":4,"topic":"general","gender":"any","ageMin":0,"ageMax":17,"titleHint":"Стоп простуда","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5336874803,"tab":4,"topic":"general","gender":"any","ageMin":13,"ageMax":18,"titleHint":"Половое созревание под контролем (13–18 лет)","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5336874903,"tab":4,"topic":"weight","gender":"any","ageMin":10,"ageMax":100,"titleHint":"Контроль веса и метаболизма (10+ лет)","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5512831303,"tab":2,"topic":"urology","gender":"male","ageMin":18,"ageMax":100,"titleHint":"Мужской базовый","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}},{"id":5513194303,"tab":2,"topic":"urology","gender":"male","ageMin":18,"ageMax":100,"titleHint":"Мужской: инфекции под контролем","source":{"title":"8102496566","category":"8102496565","price":"81024965647","oldPrice":"81024965645","services":[]}}];
 const recommendationRules={"codes":{"A":5301242603,"B":5301345103,"C":5299416903,"D":5512831303,"E":5513194303,"F":5336877903,"G":5336877803,"H":5336877703,"I":5336872503,"K1":5336874503,"K2":5336874403,"K3":5336874303,"K4":5336874603,"K5":5336874703,"K6":5336874803,"K7":5336874903},"branches":{"female":{"adult18_34":{"gynecology":["A","B","C"],"thyroid":["G","F","B"],"weight":["G","F"],"general":["G","F","B"]},"adult35plus":{"gynecology":["A","B","C"],"thyroid":["G","F","B"],"weight":["F","I","H"],"general":["F","B","C"]}},"male":{"adult18_34":{"urology":["D","E"],"thyroid":["G","F","D"],"weight":["G","F"],"general":["F","D","E"]},"adult35plus":{"urology":["D","E"],"thyroid":["G","F","D"],"weight":["F","I","H"],"general":["F","I","D"]}},"child":{"child":{"children":["K1","K4","K5"],"thyroid":["K6","K3","K7"],"weight":["K1","K3","K7"],"general":["K1","K3","K4"]}}}};
 const q=s=>root.querySelector(s), qa=s=>Array.from(root.querySelectorAll(s)), form=q('#ccq-form'),ageEl=q('#ccq-age'),errorEl=q('#ccq-error');
 const topics={children:['♧','Детские чекапы'],general:['✦','Общий профиль организма'],gynecology:['♀','Гинекология'],urology:['♂','Урология'],thyroid:['✳','Щитовидная железа'],weight:['↗','Лишний вес']};
@@ -47,48 +47,30 @@ function openTabAndCard(e,id,tab){e.preventDefault();const hash='!/tab/529931980
 function ccqReadLiveCheckup(meta){
  const root=document.getElementById('rec'+meta.id);
  const empty={title:'Программа обследования',price:null,oldPrice:null,saving:null,services:[],verified:false,sourceFound:!!root};
- if(!root)return empty;
+ if(!root||!meta.source)return empty;
  const norm=s=>String(s||'').replace(/[\u00a0\u202f]/g,' ').replace(/\s+/g,' ').trim();
- const elements=[...new Set(root.querySelectorAll('.tn-atom,[data-checkup-field],.checkup-title,.checkup-price,.checkup-old-price,.checkup-service,.service_name'))];
- const pieces=elements.filter(el=>!el.closest('script,style,noscript,form')).map(el=>({el,text:norm(el.textContent)})).filter(x=>x.text&&x.text.length<250);
- const tagged=selectors=>pieces.find(x=>selectors.some(sel=>x.el.matches(sel)||!!x.el.closest(sel)));
- const hint=norm(meta.titleHint).toLowerCase();
- const titleNode=tagged(['[data-checkup-field="title"]','.checkup-title','.checkup_name']);
- const nameNode=pieces.find(x=>x.text.toLowerCase()===hint)||pieces.find(x=>hint&&x.text.toLowerCase().includes(hint)&&x.text.length<95);
- const title=titleNode?.text||nameNode?.text||'Программа обследования';
- const money=s=>{const m=norm(s).replace(/\s/g,'').match(/(\d{4,7})(?:₸|тг\.?|тенге)/i);return m?Number(m[1]):null};
- const priceTagged=tagged(['[data-checkup-field="price"]','.checkup-price','.checkup_price']);
- const oldTagged=tagged(['[data-checkup-field="old-price"]','.checkup-old-price','.old_price']);
- let price=priceTagged?money(priceTagged.text):null,oldPrice=oldTagged?money(oldTagged.text):null;
- const candidates=[];
- for(const {el,text} of pieces){
-  if(/выгод|эконом|сэконом|скидк/i.test(text))continue;
-  const currency=[...text.matchAll(/(\d{1,3}(?:[\s\u00a0\u202f]?\d{3})+|\d{4,7})\s*(?:₸|тг\.?|тенге)/gi)];
-  if(currency.length!==1)continue;
-  const val=Number(currency[0][1].replace(/\s/g,''));
-  if(val<1000||val>2000000)continue;
-  const css=(el.getAttribute('style')||'')+' '+(el.parentElement?.getAttribute('style')||'');
-  candidates.push({val,crossed:!!el.closest('del,s')||/line-through/i.test(css)});
- }
- const values=[...new Set(candidates.map(x=>x.val))];
- if(price===null){
-  const uncrossed=[...new Set(candidates.filter(x=>!x.crossed).map(x=>x.val))];
-  if(uncrossed.length===1)price=uncrossed[0];
-  else if(values.length===2)price=Math.min(...values);
-  else if(values.length===1)price=values[0];
- }
- if(oldPrice===null&&price!==null){
-  const crossed=[...new Set(candidates.filter(x=>x.crossed&&x.val>price).map(x=>x.val))];
-  if(crossed.length===1)oldPrice=crossed[0];
-  else if(values.length===2&&Math.max(...values)>price)oldPrice=Math.max(...values);
- }
+ const field=id=>{
+   if(!id||!/^\d{8,19}$/.test(String(id)))return null;
+   const layer=root.querySelector('[data-elem-id="'+id+'"]');
+   return layer?.querySelector('.tn-atom')||null;
+ };
+ const text=id=>norm(field(id)?.textContent);
+ const rawName=text(meta.source.title);
+ const category=text(meta.source.category);
+ // The title is sourced from the live Zero Block. A short title such as
+ // "базовый" is combined with its real category rather than a stale JS name.
+ const title=rawName&&category&&rawName.length<20&&!rawName.toLowerCase().includes(category.toLowerCase().replace('check-up','').trim())?
+   norm(category+' '+rawName):rawName||category||'Программа обследования';
+ const amount=id=>{
+   const value=text(id).replace(/\s/g,'').match(/(\d{4,7})(?:₸|тг\.?|тенге)/i);
+   return value?Number(value[1]):null;
+ };
+ let price=amount(meta.source.price),oldPrice=amount(meta.source.oldPrice);
  if(!(Number.isFinite(price)&&price>=1000&&price<=2000000))price=null;
  if(!(price!==null&&Number.isFinite(oldPrice)&&oldPrice>price))oldPrice=null;
- const serviceNodes=root.querySelectorAll('[data-checkup-field="service"],.checkup-service,.service_name .tn-atom,.service_name');
- const services=[...new Set([...serviceNodes].map(el=>norm(el.textContent)).filter(x=>x.length>2&&x.length<200))].slice(0,60);
+ const services=[...new Set((meta.source.services||[]).map(text).filter(t=>t.length>2&&t.length<200))].slice(0,100);
  return {title,price,oldPrice,saving:oldPrice!==null?oldPrice-price:null,services,verified:price!==null,sourceFound:true};
 }
-
 function makeCard(p){
  const live=ccqReadLiveCheckup(p),card=node('article','ccq-program'),hdr=node('header'),left=node('div');
  left.append(node('h3','',live.title));
