@@ -7,6 +7,7 @@ const root = resolve(import.meta.dirname, '..');
 const htmlPath = resolve(root, 'tilda/comfortclinic_quiz_T123.html');
 const html = readFileSync(htmlPath, 'utf8');
 const programs = JSON.parse(readFileSync(resolve(root, 'data/checkups.json'), 'utf8'));
+const runtimePrograms = programs.map(({id,tab,topic,gender,ageMin,ageMax,title}) => ({id,tab,topic,gender,ageMin,ageMax,titleHint:title}));
 const rules = JSON.parse(readFileSync(resolve(root, 'data/recommendation-rules.json'), 'utf8'));
 
 if (!Array.isArray(programs) || programs.length < 1) {
@@ -22,7 +23,7 @@ const pattern = /const programs=\[[\s\S]*?\];\s*const recommendationRules=\{[\s\
 if (!pattern.test(html)) {
   throw new Error('Expected embedded programs and recommendationRules before const q=');
 }
-const replacement = 'const programs=' + JSON.stringify(programs) + ';\n'
+const replacement = 'const programs=' + JSON.stringify(runtimePrograms) + ';\n'
   + 'const recommendationRules=' + JSON.stringify(runtimeRules) + ';\nconst q=';
 const updated = html.replace(pattern, replacement);
 if (updated !== html) {
