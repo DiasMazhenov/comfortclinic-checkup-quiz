@@ -47,6 +47,8 @@ check((html.match(/class="ccq-panel"/g) || []).length === 4, 'Expected four scre
 check(html.includes('function currentBranch()') && html.includes('recommendationRules.codes'), 'Clinic matrix selector missing');
 check(html.includes('return {items:recommendedForTopic(\'general\'),fallback:true}'), 'Fallback to general programs missing');
 check(html.includes('Собрать свой чекап'), 'Fourth card “Собрать свой” missing');
+check(!/ЖКТ|\\bgut\\b/.test(html), 'Unexpected ЖКТ category in quiz interface');
+check(!Object.values(rules.branches).some(groups => Object.values(groups).some(branch => Object.hasOwn(branch, 'gut'))), 'Clinic matrix must not include ЖКТ branch');
 check(html.includes('id="ccq-browse"') && html.includes('href="#rec5299319803"'), 'Direct browsing of native Tilda tabs missing');
 check(html.includes("const hash='!/tab/5299319803-'"), 'Native tab navigation missing');
 check(html.includes("book.href='#zapis'"), 'Booking popup link missing');
@@ -86,8 +88,6 @@ const scenarios = [
   [15,'female','thyroid',['K6','K3','K7'],false],
   [12,'female','weight',['K1','K3','K7'],false],
   [12,'male','general',['K1','K3','K4'],false],
-  [35,'female','gut',['F','B','C'],true],
-  [35,'male','gut',['F','I','D'],true],
   [5,'female','thyroid',['K1','K4'],true],
   [8,'male','weight',['K1'],false],
   [0,'male','general',['K1','K4'],false],
