@@ -29,7 +29,7 @@ const ruleMatch = html.match(/const recommendationRules=(\{[\s\S]*?\});\s*const 
 check(!!programMatch, 'Embedded programs not found');
 check(!!ruleMatch, 'Embedded recommendationRules not found');
 if (programMatch) {
-  try { assert.deepEqual(JSON.parse(programMatch[1]), programs); }
+  try { assert.deepEqual(JSON.parse(programMatch[1]), programs.map(({id,tab,topic,gender,ageMin,ageMax,title}) => ({id,tab,topic,gender,ageMin,ageMax,titleHint:title}))); }
   catch { errors.push('Embedded programs differ from data/checkups.json; run npm run build'); }
 }
 if (ruleMatch) {
@@ -47,6 +47,13 @@ check((html.match(/class="ccq-panel"/g) || []).length === 4, 'Expected four scre
 check(html.includes('function currentBranch()') && html.includes('recommendationRules.codes'), 'Clinic matrix selector missing');
 check(html.includes('return {items:recommendedForTopic(\'general\'),fallback:true}'), 'Fallback to general programs missing');
 check(html.includes('Собрать свой чекап'), 'Fourth card “Собрать свой” missing');
+check(html.includes('function ccqReadLiveCheckup(meta)'), 'Live Zero Block reader missing');
+check(html.includes("document.getElementById('rec'+meta.id)"), 'Reader must select canonical Tilda record');
+check(html.includes('const live=ccqReadLiveCheckup(p)'), 'Cards must use live data');
+check(!/\bp\.(price|oldPrice|saving|services)\b/.test(html), 'Cards must not use stale embedded prices or service lists');
+check(!/"price":\d+/.test(programMatch?.[1]||''), 'T123 bundle still embeds commercial prices');
+check(html.includes("live.price!==null?fmt(live.price):'Стоимость в программе'"), 'Reader must not invent or show stale prices');
+
 check(!/ЖКТ|\\bgut\\b/.test(html), 'Unexpected ЖКТ category in quiz interface');
 check(!Object.values(rules.branches).some(groups => Object.values(groups).some(branch => Object.hasOwn(branch, 'gut'))), 'Clinic matrix must not include ЖКТ branch');
 check(html.includes('id="ccq-browse"') && html.includes('href="#rec5299319803"'), 'Direct browsing of native Tilda tabs missing');
