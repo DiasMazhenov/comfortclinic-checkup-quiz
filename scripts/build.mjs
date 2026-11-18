@@ -7,7 +7,9 @@ const root = resolve(import.meta.dirname, '..');
 const htmlPath = resolve(root, 'tilda/comfortclinic_quiz_T123.html');
 const html = readFileSync(htmlPath, 'utf8');
 const programs = JSON.parse(readFileSync(resolve(root, 'data/checkups.json'), 'utf8'));
-const runtimePrograms = programs.map(({id,tab,topic,gender,ageMin,ageMax,title}) => ({id,tab,topic,gender,ageMin,ageMax,titleHint:title}));
+const sourceMap = JSON.parse(readFileSync(resolve(root, 'data/tilda-source-map.json'), 'utf8'));
+const runtimePrograms = programs.map(({id,tab,topic,gender,ageMin,ageMax,title}) => ({id,tab,topic,gender,ageMin,ageMax,titleHint:title,source:sourceMap.records[String(id)]||null}));
+if (runtimePrograms.some(p=>!p.source||!p.source.title||!p.source.price||!p.source.oldPrice)) throw new Error('Incomplete live Tilda selectors in data/tilda-source-map.json');
 const rules = JSON.parse(readFileSync(resolve(root, 'data/recommendation-rules.json'), 'utf8'));
 
 if (!Array.isArray(programs) || programs.length < 1) {
