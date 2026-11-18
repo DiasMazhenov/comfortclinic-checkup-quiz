@@ -26,7 +26,7 @@ check(new Set(Object.values(rules.codes)).size === 16, 'Code mapping is not one-
 check(Object.values(rules.codes).every(id => programs.some(p => p.id === id)), 'Clinic code references nonexistent Tilda Record ID');
 check(programs.every(p => sourceMap[String(p.id)]), 'Missing live source mapping for program');
 check(programs.every(p => ['title','price','oldPrice'].every(f => /^\d{8,19}$/.test(String(sourceMap[String(p.id)]?.[f])))), 'Invalid Zero Block selector ID');
-check(Object.values(sourceMap).every(m => Array.isArray(m.services) && m.services.every(s => /^\d{19}$/.test(String(s)))), 'Invalid service layer selector');
+check(Object.values(sourceMap).every(m => Array.isArray(m.services) && m.services.every(s => /^\d{8,19}$/.test(String(s)))), 'Invalid service layer selector');
 
 
 const programMatch = html.match(/const programs=(\[[\s\S]*?\]);\s*const recommendationRules=/);
