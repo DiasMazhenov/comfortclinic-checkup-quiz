@@ -19,8 +19,8 @@ check(programs.every(p => Number.isInteger(p.id) && p.id > 0), 'Invalid Record I
 check(programs.every(p => [1,2,3,4].includes(p.tab)), 'Invalid Tilda tab');
 check(programs.every(p => ['female','male','any'].includes(p.gender)), 'Invalid gender');
 check(programs.every(p => Number.isInteger(p.ageMin) && Number.isInteger(p.ageMax) && p.ageMin >= 0 && p.ageMin <= p.ageMax && p.ageMax <= 100), 'Invalid age bounds');
-check(programs.every(p => p.price > 0 && p.oldPrice >= p.price && p.saving === p.oldPrice - p.price), 'Invalid price/saving arithmetic');
-check(programs.every(p => p.title && Array.isArray(p.services) && p.services.length), 'Missing catalog information');
+check(programs.every(p => p.price===undefined && p.oldPrice===undefined && p.saving===undefined && p.services===undefined), 'Commercial data must not be duplicated in checkups.json');
+check(programs.every(p => p.title), 'Missing program title for administrative identification');
 check(Object.keys(rules.codes).length === 16, 'Expected 16 clinic code mappings');
 check(new Set(Object.values(rules.codes)).size === 16, 'Code mapping is not one-to-one');
 check(Object.values(rules.codes).every(id => programs.some(p => p.id === id)), 'Clinic code references nonexistent Tilda Record ID');
