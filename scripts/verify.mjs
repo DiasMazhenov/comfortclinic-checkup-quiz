@@ -51,7 +51,7 @@ if (script) {
 check((html.match(/class="ccq-panel"/g) || []).length === 4, 'Expected four screens: sex, age, topic, results');
 check(html.includes('function currentBranch()') && html.includes('recommendationRules.codes'), 'Clinic matrix selector missing');
 check(html.includes('return {items:recommendedForTopic(\'general\'),fallback:true}'), 'Fallback to general programs missing');
-check(html.includes('Собрать свой чекап'), 'Fourth card “Собрать свой” missing');
+check(html.includes('Не нашли подходящий чек-ап? Подберём!'), 'WhatsApp support card missing');
 check(html.includes('function ccqReadLiveCheckup(meta)'), 'Live Zero Block reader missing');
 check(html.includes("document.getElementById('rec'+meta.id)"), 'Reader must select canonical Tilda record');
 check(html.includes('const live=ccqReadLiveCheckup(p)'), 'Cards must use live data');
@@ -61,9 +61,13 @@ check(html.includes("live.price!==null?fmt(live.price):'Стоимость в п
 
 check(!/ЖКТ|\\bgut\\b/.test(html), 'Unexpected ЖКТ category in quiz interface');
 check(!Object.values(rules.branches).some(groups => Object.values(groups).some(branch => Object.hasOwn(branch, 'gut'))), 'Clinic matrix must not include ЖКТ branch');
-check(html.includes('id="ccq-browse"') && html.includes('href="#rec5299319803"'), 'Direct browsing of native Tilda tabs missing');
+check(!html.includes('id="ccq-browse"') && !html.includes('Обсудить выбор с клиникой'), 'Removed standalone CTAs must not be present');
 check(html.includes("const hash='!/tab/5299319803-'"), 'Native tab navigation missing');
-check(html.includes("book.href='#zapis'"), 'Booking popup link missing');
+check(html.includes("book.href='#zapis-checkup'"), 'Checkup booking popup link missing');
+check(html.includes('Посмотреть программу') && !html.includes('Посмотреть программу ↗'), 'Program CTA arrow must be removed');
+check(html.includes("node('a','','Записаться')") && !html.includes('Записаться ↗'), 'Booking CTA arrow must be removed');
+check(html.includes('https://wa.me/77713953828?text=') && html.includes("a.target='_blank'"), 'WhatsApp CTA and secure target missing');
+check(!html.includes('Выбрать чекап самостоятельно'), 'Standalone browse CTA must be removed');
 check(!/демо|согласовани|на согласовании/iu.test(html), 'Disallowed end-user copy in HTML');
 check(!/<script[^>]+src=|<link[^>]+href=/i.test(html), 'Unexpected external dependency');
 check(!/(sk-[A-Za-z0-9_-]{20,}|Bearer\s+[A-Za-z0-9._-]{20,})/.test(html), 'Possible secret in bundle');
