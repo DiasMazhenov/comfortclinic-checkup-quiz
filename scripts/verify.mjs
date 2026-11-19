@@ -86,7 +86,9 @@ const codes = list => list.map(code => rules.codes[code]);
 const scenarios = [
   [28,'female','gynecology',['A','B','C'],false],
   [28,'female','thyroid',['G','F','B'],false],
-  [28,'female','weight',['G','F'],false],
+  [28,'female','weight',['G','F','I'],false],
+  [33,'female','weight',['G','F','I'],false],
+  [34,'female','weight',['G','F','I'],false],
   [28,'female','general',['G','F','B'],false],
   [35,'female','gynecology',['A','B','C'],false],
   [35,'female','thyroid',['G','F','B'],false],
